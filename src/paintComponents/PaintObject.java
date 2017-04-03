@@ -1,3 +1,4 @@
+package paintComponents;
 /* Author: Alex Erwin
  * Purpose: Abstract Class for a graphics shape. Extended by Line, Oval, Rectangle
  */
@@ -18,7 +19,7 @@ public abstract class PaintObject {
 		this.point2 = point2;
 	}
 	// abstract method draw
-	abstract void draw(Graphics g);
+	public abstract void draw(Graphics g);
 	// getters
 	protected Color getColor() {
 		return this.color;
