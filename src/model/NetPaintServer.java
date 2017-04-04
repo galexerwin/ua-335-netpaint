@@ -5,20 +5,19 @@
 // package definition
 package model;
 // import classes
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
-import paintComponents.*;
+import paintComponents.PaintObject;
 // netpaint client
 @SuppressWarnings("serial")
 // server capture class
 public class NetPaintServer implements Runnable {
 	// instance variables
-	Socket connection;
-	Vector<PaintObject> mainCanvas;
+	private Socket connection;
+	private Vector<PaintObject> mainCanvas;
 	// main method that accepts connections
 	public static void main(String[] args) {
 		// variables
@@ -36,7 +35,7 @@ public class NetPaintServer implements Runnable {
 			}
 		} catch (Exception e) { e.printStackTrace(); }	
 	}
-	// constructor
+	// constructor 
 	public NetPaintServer(Socket connection, Vector<PaintObject> mainCanvas) {
 		// add all for the run interface
 		this.connection = connection;
@@ -49,15 +48,13 @@ public class NetPaintServer implements Runnable {
 				ObjectOutputStream outputToClient = new ObjectOutputStream(connection.getOutputStream());
 				ObjectInputStream inputFromClient = new ObjectInputStream(connection.getInputStream());				
 			) {
-			System.out.println("Start!");
 			// add the paint object sent from the client
 			mainCanvas.add((PaintObject)inputFromClient.readObject());
 			// reset
 			outputToClient.reset();
 			// output the entire collection to everyone (Todo)
 			outputToClient.writeObject(mainCanvas);
-			// 
-			System.out.println("Done!");
+			// close connection
 			connection.close();
 		} catch (Exception e) { e.printStackTrace(); }
 	}

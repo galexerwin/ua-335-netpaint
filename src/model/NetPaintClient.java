@@ -13,17 +13,17 @@ import java.net.Socket;
 import java.awt.Color;
 import java.util.Observable;
 import java.util.Vector;
-import paintComponents.*;
+import paintComponents.PaintObject;
+import paintComponents.Line;
+import paintComponents.Oval;
+import paintComponents.Rectangle;
 // netpaint client
 @SuppressWarnings("serial")
 public class NetPaintClient extends Observable {
 	// instance variables
 	Vector<PaintObject> localCopy;
-	
-	
-	public NetPaintClient() {
-		this.localCopy = new Vector<>();
-	}
+	// constructor
+	public NetPaintClient() { this.localCopy = new Vector<>(); }
 	// draw object and save to server
 	public void drawObjectToServer(String type, Point point1, Point point2, Color color) {
 		// variables
@@ -35,10 +35,8 @@ public class NetPaintClient extends Observable {
 			drawThis = new Rectangle(color, point1, point2);		
 		if (type.equals("Oval"))
 			drawThis = new Oval(color, point1, point2);	
-		System.out.println("X2");
 		// save this over the wire
 		sendToServer(drawThis);
-		System.out.println("X3");
 		// update
 		setChanged();
 		// notify
@@ -46,25 +44,19 @@ public class NetPaintClient extends Observable {
 	}
 	// send the data to the server and write the response to the local copy
 	@SuppressWarnings("unchecked")
-	public void sendToServer(PaintObject drawing) {		
+	public void sendToServer(PaintObject drawing) {
 		// connect to a server and get the two streams from the server
 		try (
 				Socket server = new Socket("localhost", 4000);
 				ObjectOutputStream outputToServer = new ObjectOutputStream(server.getOutputStream());
 				ObjectInputStream inputFromServer = new ObjectInputStream(server.getInputStream());				
 			) {
-			System.out.println("X4");
 				// write the drawing to the server
-				outputToServer.writeObject(drawing); System.out.println("T1");
+				outputToServer.writeObject(drawing);
 				// read the collection of objects from the server
-				try { 
-					
-					System.out.println("T2");
-					this.localCopy = (Vector<PaintObject>)inputFromServer.readObject(); System.out.println("T3");}
-				catch(Exception e) {}	
-		} catch (IOException e) {
-			e.printStackTrace();
-		}		
+				try { this.localCopy = (Vector<PaintObject>)inputFromServer.readObject(); }
+				catch(Exception e) { e.printStackTrace();}	
+		} catch (IOException e) { e.printStackTrace(); }		
 	}
 	// get canvas
 	public Vector<PaintObject> getCanvas() {

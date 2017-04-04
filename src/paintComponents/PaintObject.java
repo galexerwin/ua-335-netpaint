@@ -6,12 +6,16 @@ package paintComponents;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.io.Serializable;
 // abstract class
-public abstract class PaintObject {
+@SuppressWarnings("serial")
+public abstract class PaintObject implements Serializable {
 	// abstract variables
 	private Color color;
 	private Point point1;
-	private Point point2;	
+	private Point point2;
+	
+	protected PaintObject() {}
 	// abstract constructor
 	protected PaintObject(Color color, Point point1, Point point2) {
 		this.color = color;

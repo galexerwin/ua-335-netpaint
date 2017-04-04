@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.Vector;
-
 import javax.swing.*;
 import model.*;
 import paintComponents.*;
@@ -21,35 +20,61 @@ import paintComponents.*;
 @SuppressWarnings("serial")
 public class DefaultView extends JPanel implements Observer, MouseListener {
 	// instance variables
-	NetPaintClient 		npc;
-	JScrollPane 		viewport;
-	JColorChooser 		colorOption; 
-	ButtonGroup 		shapeOption;
-	Point 				point1, point2;
-	int 				width, height;
+	private NetPaintClient 	npc;
+	private JPanel			upper, middle, lower;
+	private JScrollPane 	viewport;
+	private JColorChooser 	colorOption; 
+	private ButtonGroup 	shapeOption;
+	private Point 			point1, point2;
+	private int 			width, height;
+	private int				upperHeight, middleHeight, lowerHeight;
 	// constructor
 	public DefaultView(NetPaintClient npc, int width, int height) {
 		// set defaults
 		this.npc = npc;
 		this.height = height;
 		this.width = width;
+		// calculate the height
+		int maxHeight = height;
+		// fix middleHeight
+		middleHeight = 30;
+		// subtract
+		maxHeight -= middleHeight;
+		// set lowerHeight
+		lowerHeight = 475;
+		// subtract
+		maxHeight -= lowerHeight;
+		// set upperHeight
+		upperHeight = maxHeight;
 		// setup the view
 		initializeView();		
 	}
 	// initialize the view
 	private void initializeView() {
-		// set the layout
-		this.setLayout(new GridLayout(3,1));
-		// set up the scroll pane for viewport
-		this.viewport = new JScrollPane();
-		// add a mouse listener to the scroll pane
-		this.viewport.addMouseListener(this);
-		// get the user's selected color
-		this.colorOption = new JColorChooser();
+		// add the upper
+		this.upper = new DrawWindow();
+		// set dimensions
+		this.upper.setPreferredSize(new Dimension(this.width * 2, this.height * 2));
+		// background color
+		this.upper.setBackground(Color.WHITE);
+		// mouse clicks
+		this.upper.addMouseListener(this);
+		// set up scrollable
+		this.viewport = new JScrollPane(this.upper);
+		// set the size
+		this.viewport.setPreferredSize(new Dimension(this.width, this.upperHeight));
+		// add the radio group to style it
+		this.middle = getRadioGroup();
+		// set dimensions
+		this.middle.setPreferredSize(new Dimension(this.width, this.middleHeight));
+		// add the color group to style it
+		this.lower = getColorChoice();
+		// set dimensions
+		this.lower.setPreferredSize(new Dimension(this.width, this.lowerHeight));
 		// add elements
 		add(this.viewport);
-		add(getRadioGroup());
-		add(this.colorOption);
+		add(this.middle);
+		add(this.lower);
 	}
 	// radio group
 	private JPanel getRadioGroup() {
@@ -78,12 +103,24 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 		canvas.add(bttnRect);
 		canvas.add(bttnOval);
 		canvas.add(bttnJImg);
-		// return the buttons
+		// return the canvas
 		return canvas;
+	}
+	// color chooser
+	private JPanel getColorChoice() {
+		// variables
+		JPanel canvas = new JPanel();		
+		// get the user's selected color
+		this.colorOption = new JColorChooser();
+		// 
+		this.colorOption.setPreferredSize(new Dimension(this.width, 300));
+		// add the color option to the canvas
+		canvas.add(this.colorOption);
+		// return the canvas
+		return canvas;		
 	}
 	// execute the action
 	private void executeAction() {
-		System.out.println("X1");
 		// send selection and points
 		npc.drawObjectToServer(this.shapeOption.getSelection().getActionCommand(), point1, point2, this.colorOption.getColor());
 		// reset points
@@ -94,18 +131,24 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 	@Override
 	public void update(Observable arg0, Object arg1) {
 		// repaint the view port on update
-		this.viewport.repaint();
+		this.upper.repaint();
 	}
-    public void paintComponent(Graphics g) {
-    	// get the paint objects
-    	Vector<PaintObject> allPaintObjects = npc.getCanvas();
-    	// call super repaint for gui elements
-    	super.paintComponent(g);
-        // draw all of the paint objects
-    	//if (allPaintObjects.size() != 0)
-        //for (PaintObject ob : allPaintObjects)
-          //ob.draw(g);         
-      }	
+    public void paintComponent(Graphics g) {}	
+	// private panel for updates
+	private class DrawWindow extends JPanel {
+		// paint the game onto the canvas
+		@Override
+		public void paintComponent(Graphics g) {
+			// call super repaint for gui elements
+		    super.paintComponent(g);	
+	    	// get the paint objects
+	    	Vector<PaintObject> allPaintObjects = npc.getCanvas();
+	    	// iterate over the paint objects
+			for (PaintObject ob : allPaintObjects) {
+				ob.draw(g);
+			}
+		}
+	}
 	// handle clicks from the user
 	@Override
 	public void mouseClicked(MouseEvent e) {
@@ -130,5 +173,5 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 	@Override
 	public void mousePressed(MouseEvent e) {}
 	@Override
-	public void mouseReleased(MouseEvent e) {}	
+	public void mouseReleased(MouseEvent e) {}			
 }

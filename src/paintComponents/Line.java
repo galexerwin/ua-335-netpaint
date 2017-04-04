@@ -10,6 +10,7 @@ import java.io.Serializable;
 // concrete class which extends an abstract class
 @SuppressWarnings("serial")
 public class Line extends PaintObject implements Serializable {
+	public Line() { super(); }
 	// constructor calls the super
 	public Line(Color color, Point point1, Point point2) {
 		// call super constructor
