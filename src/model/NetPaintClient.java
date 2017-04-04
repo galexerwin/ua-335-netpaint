@@ -1,19 +1,17 @@
 /*Author: Alex Erwin
- * 
- * 
+ *Purpose: Client Send 
  */
 // package definition
 package model;
 // import classes
 import java.awt.Point;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.Socket;
 import java.awt.Color;
 import java.util.Observable;
 import java.util.Vector;
 import paintComponents.PaintObject;
+import paintComponents.Image;
 import paintComponents.Line;
 import paintComponents.Oval;
 import paintComponents.Rectangle;
@@ -21,6 +19,7 @@ import paintComponents.Rectangle;
 @SuppressWarnings("serial")
 public class NetPaintClient extends Observable {
 	// instance variables
+	ObjectOutputStream 	outputToServer;
 	Vector<PaintObject> localCopy;
 	// constructor
 	public NetPaintClient() { this.localCopy = new Vector<>(); }
@@ -34,33 +33,34 @@ public class NetPaintClient extends Observable {
 		if (type.equals("Rectangle"))
 			drawThis = new Rectangle(color, point1, point2);		
 		if (type.equals("Oval"))
-			drawThis = new Oval(color, point1, point2);	
-		// save this over the wire
-		sendToServer(drawThis);
-		// update
-		setChanged();
-		// notify
-		notifyObservers();
-	}
-	// send the data to the server and write the response to the local copy
-	@SuppressWarnings("unchecked")
-	public void sendToServer(PaintObject drawing) {
-		// connect to a server and get the two streams from the server
-		try (
-				Socket server = new Socket("localhost", 4000);
-				ObjectOutputStream outputToServer = new ObjectOutputStream(server.getOutputStream());
-				ObjectInputStream inputFromServer = new ObjectInputStream(server.getInputStream());				
-			) {
-				// write the drawing to the server
-				outputToServer.writeObject(drawing);
-				// read the collection of objects from the server
-				try { this.localCopy = (Vector<PaintObject>)inputFromServer.readObject(); }
-				catch(Exception e) { e.printStackTrace();}	
-		} catch (IOException e) { e.printStackTrace(); }		
+			drawThis = new Oval(color, point1, point2);
+		if (type.equals("Image"))
+			drawThis = new Image(color, point1, point2);
+		// try exporting to server
+		try {
+			// write
+			outputToServer.writeObject(drawThis);
+			// flush
+			outputToServer.flush();
+		} 
+		catch (IOException e) { e.printStackTrace(); }
 	}
 	// get canvas
 	public Vector<PaintObject> getCanvas() {
 		// return the paint objects collection
 		return this.localCopy;
+	}
+	// set the received data
+	public void setLocalCopy(Vector<PaintObject> toLocal) {
+		// get the data into the local
+		this.localCopy = toLocal;
+		// update
+		setChanged(); // here because of Asynchronous operation
+		// notify
+		notifyObservers();		
+	}
+	// set the writer to use
+	public void setServerWriteHandle(ObjectOutputStream outputToServer) {
+		this.outputToServer = outputToServer;
 	}
 }

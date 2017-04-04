@@ -1,8 +1,9 @@
-package paintComponents;
 /* Author: Alex Erwin
  * Purpose: Represents the Oval shape and draws it onto the screen when it's draw method is called
  */
-// import classes
+//package definition
+package paintComponents;
+//import classes
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;

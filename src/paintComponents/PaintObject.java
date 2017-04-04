@@ -1,7 +1,8 @@
-package paintComponents;
 /* Author: Alex Erwin
  * Purpose: Abstract Class for a graphics shape. Extended by Line, Oval, Rectangle
  */
+// package definition
+package paintComponents;
 // import classes
 import java.awt.Color;
 import java.awt.Graphics;

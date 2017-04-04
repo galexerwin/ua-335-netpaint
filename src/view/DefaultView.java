@@ -1,13 +1,15 @@
 /*Author: Alex Erwin
- * 
- * 
+ *Purpose: Default View 
  */
 // package definition
 package view;
 // import classes
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Observable;
@@ -16,9 +18,11 @@ import java.util.Vector;
 import javax.swing.*;
 import model.*;
 import paintComponents.*;
+import paintComponents.Image;
+import paintComponents.Rectangle;
 //gui view implementation
 @SuppressWarnings("serial")
-public class DefaultView extends JPanel implements Observer, MouseListener {
+public class DefaultView extends JPanel implements Observer, MouseListener, MouseMotionListener {
 	// instance variables
 	private NetPaintClient 	npc;
 	private JPanel			upper, middle, lower;
@@ -28,6 +32,7 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 	private Point 			point1, point2;
 	private int 			width, height;
 	private int				upperHeight, middleHeight, lowerHeight;
+	private Timer			refresh;
 	// constructor
 	public DefaultView(NetPaintClient npc, int width, int height) {
 		// set defaults
@@ -47,7 +52,15 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 		// set upperHeight
 		upperHeight = maxHeight;
 		// setup the view
-		initializeView();		
+		initializeView();
+		// setup an action to refresh the mouse move
+		ActionListener doRefresh =  new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				upper.repaint();
+			}
+		};
+		// set up a timer
+		refresh = new Timer(1000, doRefresh);
 	}
 	// initialize the view
 	private void initializeView() {
@@ -57,8 +70,9 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 		this.upper.setPreferredSize(new Dimension(this.width * 2, this.height * 2));
 		// background color
 		this.upper.setBackground(Color.WHITE);
-		// mouse clicks
+		// mouse clicks & movements
 		this.upper.addMouseListener(this);
+		this.upper.addMouseMotionListener(this);
 		// set up scrollable
 		this.viewport = new JScrollPane(this.upper);
 		// set the size
@@ -112,8 +126,10 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 		JPanel canvas = new JPanel();		
 		// get the user's selected color
 		this.colorOption = new JColorChooser();
-		// 
+		// set the preferred size
 		this.colorOption.setPreferredSize(new Dimension(this.width, 300));
+		// set to default color
+		this.colorOption.setColor(Color.BLACK);
 		// add the color option to the canvas
 		canvas.add(this.colorOption);
 		// return the canvas
@@ -133,7 +149,6 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 		// repaint the view port on update
 		this.upper.repaint();
 	}
-    public void paintComponent(Graphics g) {}	
 	// private panel for updates
 	private class DrawWindow extends JPanel {
 		// paint the game onto the canvas
@@ -149,29 +164,61 @@ public class DefaultView extends JPanel implements Observer, MouseListener {
 			}
 		}
 	}
-	// handle clicks from the user
+	// unused
+	public void paintComponent(Graphics g) {}	
+	// handle clicks from the user	
 	@Override
-	public void mouseClicked(MouseEvent e) {
-		// variables
-		double mouseX = e.getX(), mouseY = e.getY();
+	public void mouseReleased(MouseEvent e) {
 		// check state of the points
 		if (point1 == null) {
 			// setup point 1
-			point1 = new Point((int)mouseX, (int)mouseY);
+			point1 = e.getPoint();
+			// start refresh
+			refresh.start();
 		} else {
 			// setup point 2
-			point2 = new Point((int)mouseX, (int)mouseY);
+			point2 = e.getPoint();
+			// stop refreshing
+			refresh.stop();
 			// execute the requested action
 			executeAction();
-		}
+		}			
 	}
+
+	// handles move after 1st click
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		// variables
+		PaintObject drawThis = null;
+		Graphics g = getGraphics();
+		String type = this.shapeOption.getSelection().getActionCommand();
+		Color color = this.colorOption.getColor();
+		// only accept movements when only one point is filled
+		if (point1 != null && point2 == null) {
+			// set dummy point
+			Point dummy = e.getPoint();
+			// determine what to draw
+			if (type.equals("Line"))
+				drawThis = new Line(color, point1, dummy);
+			if (type.equals("Rectangle"))
+				drawThis = new Rectangle(color, point1, dummy);		
+			if (type.equals("Oval"))
+				drawThis = new Oval(color, point1, dummy);
+			if (type.equals("Image"))
+				drawThis = new Image(color, point1, dummy);
+			// draw the line
+			drawThis.draw(g);
+		}
+	}	
 	// these stubs do nothing as of yet
+	@Override
+	public void mousePressed(MouseEvent e) {}
+	@Override
+	public void mouseClicked(MouseEvent e) {}	// mouse click doesn't seem to be working
+	@Override
+	public void mouseDragged(MouseEvent e) {}		
 	@Override
 	public void mouseEntered(MouseEvent e) {}
 	@Override
 	public void mouseExited(MouseEvent e) {}
-	@Override
-	public void mousePressed(MouseEvent e) {}
-	@Override
-	public void mouseReleased(MouseEvent e) {}			
 }

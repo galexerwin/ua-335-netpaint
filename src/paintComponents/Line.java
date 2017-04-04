@@ -1,7 +1,8 @@
-package paintComponents;
 /* Author: Alex Erwin
  * Purpose: Represents the Line shape and draws it onto the screen when it's draw method is called
  */
+// package definition
+package paintComponents;
 // import classes
 import java.awt.Color;
 import java.awt.Graphics;
@@ -10,7 +11,6 @@ import java.io.Serializable;
 // concrete class which extends an abstract class
 @SuppressWarnings("serial")
 public class Line extends PaintObject implements Serializable {
-	public Line() { super(); }
 	// constructor calls the super
 	public Line(Color color, Point point1, Point point2) {
 		// call super constructor
