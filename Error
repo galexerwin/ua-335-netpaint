@@ -1,9 +1,0 @@
-Start!
-java.io.InvalidClassException: paintComponents.Line; no valid constructor
-	at java.io.ObjectStreamClass$ExceptionInfo.newInvalidClassException(Unknown Source)
-	at java.io.ObjectStreamClass.checkDeserialize(Unknown Source)
-	at java.io.ObjectInputStream.readOrdinaryObject(Unknown Source)
-	at java.io.ObjectInputStream.readObject0(Unknown Source)
-	at java.io.ObjectInputStream.readObject(Unknown Source)
-	at model.NetPaintServer.run(NetPaintServer.java:54)
-	at java.lang.Thread.run(Unknown Source)

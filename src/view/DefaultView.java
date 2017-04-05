@@ -184,7 +184,6 @@ public class DefaultView extends JPanel implements Observer, MouseListener, Mous
 			executeAction();
 		}			
 	}
-
 	// handles move after 1st click
 	@Override
 	public void mouseMoved(MouseEvent e) {

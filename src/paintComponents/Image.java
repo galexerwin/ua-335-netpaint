@@ -40,33 +40,18 @@ public class Image extends PaintObject implements Serializable {
 			upperLeftY = point1.y;
 			calcWidth = point2.x - point1.x;
 			calcHeight = point2.y - point1.y;
-			// be sure the height isn't negative
-			if (calcHeight < 0) {
-				upperLeftY = point2.y;
-				calcHeight = point1.y - point2.y;
-			}
 		} else {
 			upperLeftX = point2.x;
 			upperLeftY = point2.y;
 			calcWidth = point1.x - point2.x;
 			calcHeight = point1.y - point2.y;
-			// be sure the height isn't negative
-			if (calcHeight < 0) {
-				upperLeftY = point1.y;
-				calcHeight = point2.y - point1.y;
-			}
 		}			
 		// load the image
 		try {
-			
 			// create an image
 			BufferedImage img = ImageIO.read(new File(Image.filename)); 
 			// draw the image
 			g2.drawImage(img, upperLeftX, upperLeftY, calcWidth, calcHeight, null);
-			
-		    
-
-		} 
-		catch (IOException e) {}		
+		} catch (IOException e) {}		
 	}
 }
